@@ -7,6 +7,8 @@ from itertools import islice, cycle
 from more_itertools import pairwise
 import pickle
 from recsys_toolkit import *
+from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
 users_df = pd.read_csv('data/users_processed.csv')
 items_df = pd.read_csv('data/items_processed.csv')
@@ -19,31 +21,25 @@ before_boosting = interactions_df[(interactions_df['last_watch_dt'] <= boosting_
 boost_idx = boosting_data['user_id'].unique() 
 
 candidates = pd.read_csv('impl_scores_boost_train.csv')
-candidates['Unnamed: 0'] = candidates.index
+candidates['id'] = candidates.index
 
 pos = candidates.merge(boosting_data[['user_id', 'item_id']], on = ['user_id', 'item_id'], how = 'inner')
 pos['target'] = 1
 
-# Семплирование негативных примеров
+# Negative sampling
 num_negatives = 3
 pos_group = pos.groupby('user_id')['item_id'].count()
-neg = candidates[~candidates['Unnamed: 0'].isin(pos['Unnamed: 0'])].copy()
-neg_sampling = pd.DataFrame(neg.groupby('user_id')['Unnamed: 0'].apply(list)).join(pos_group, on = 'user_id',  rsuffix='p', how = 'right')
+neg = candidates[~candidates['id'].isin(pos['id'])].copy()
+neg_sampling = pd.DataFrame(neg.groupby('user_id')['id'].apply(list)).join(pos_group, on = 'user_id',  rsuffix='p', how = 'right')
 neg_sampling['num_choices'] = np.clip(neg_sampling['item_id'] * num_negatives, a_min = 0, a_max = 25)
-func = lambda row: np.random.choice(row['Unnamed: 0'], size = row['num_choices'], replace = False)
+func = lambda row: np.random.choice(row['id'], size = row['num_choices'], replace = False)
 neg_sampling['sample_idx'] = neg_sampling.apply(func, axis = 1)
 idx_chosen = neg_sampling['sample_idx'].explode().values
-neg = neg[neg['Unnamed: 0'].isin(idx_chosen)]
+neg = neg[neg['id'].isin(idx_chosen)]
 neg['target'] = 0
 
 boost_idx_train = np.intersect1d(boost_idx, pos['user_id'].unique())
-
-from sklearn.model_selection import train_test_split
-
-boost_idx_train = np.intersect1d(boost_idx, pos['user_id'].unique())
-
 boost_train_users, boost_eval_users = train_test_split(boost_idx_train, test_size = 0.1, random_state = 345)
-from sklearn.utils import shuffle
 select_col = ['user_id', 'item_id', 'implicit_score', 'target']
 
 boost_train = shuffle(
