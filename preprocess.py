@@ -227,7 +227,7 @@ item_stats = add_item_watches_stats(interactions_df, items_df, item_stats)
 item_stats.fillna(0, inplace = True)
 item_stats = add_sex_stats(interactions_df, item_stats, users_df)
 item_stats = add_age_stats(interactions_df, item_stats, users_df)             
-item_stats.to_csv('item_stats_for_submit.csv', index = True)
+item_stats.to_csv('data/item_stats_for_submit.csv', index = True)
                   
 # Item stats for boosting training
 item_stats = items_df[['item_id']]
@@ -236,7 +236,7 @@ item_stats = add_item_watches_stats(interactions_boost, items_df, item_stats)
 item_stats.fillna(0, inplace = True)
 item_stats = add_sex_stats(interactions_boost, item_stats, users_df)
 item_stats = add_age_stats(interactions_boost, item_stats, users_df)             
-item_stats.to_csv('item_stats_for_boost_train.csv', index = True)                 
+item_stats.to_csv('data/item_stats_for_boost_train.csv', index = True)                 
 
 # Saving preprocessed files
 users_df.to_csv('data/users_processed.csv', index=False)
