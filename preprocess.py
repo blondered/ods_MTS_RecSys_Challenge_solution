@@ -176,6 +176,7 @@ def add_age_stats(interactions, item_stats, users_df):
     Computes watchers age stats for items with particular interactions 
     date split and adds them to item_stats dataframe
     '''
+    item_stats.reset_index(inplace = True)
     interactions = interactions.set_index('user_id').join(
         users_df[['user_id', 'sex', 'age', 'income']].set_index('user_id'))
     interactions.reset_index(inplace = True)
@@ -208,6 +209,7 @@ def add_sex_stats(interactions, item_stats, users_df):
     Computes watchers sex stats for items with particular interactions date split
     and adds them to item_stats dataframe
     '''
+    item_stats.reset_index(inplace = True)
     interactions = interactions.set_index('user_id') \
                   .join(users_df[['user_id', 'sex', 'age', 'income']] \
                   .set_index('user_id'))
