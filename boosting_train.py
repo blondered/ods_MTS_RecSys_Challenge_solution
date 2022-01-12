@@ -114,10 +114,10 @@ eval_feat = eval_feat.join(item_stats.set_index('item_id'),
                            on = 'item_id', how = 'left')
 drop_col = ['user_id', 'item_id']
 target_col = ['target']
-X_train, y_train = train_feat.drop(drop_col + target_col, axis = 1), 
-train_feat[target_col]
-X_val, y_val = eval_feat.drop(drop_col + target_col, axis = 1), 
-eval_feat[target_col]
+X_train = train_feat.drop(drop_col + target_col, axis = 1)
+y_train = train_feat[target_col]
+X_val = eval_feat.drop(drop_col + target_col, axis = 1)
+y_val  = eval_feat[target_col]
 X_train.fillna('None', inplace = True)
 X_val.fillna('None', inplace = True)
 X_train[cat_col] = X_train[cat_col].astype('category')
