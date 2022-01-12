@@ -168,7 +168,7 @@ def add_item_watches_stats(interactions_df, items_df, item_stats):
                   'watch_ts_quantile_95_diff', 
                   'watch_ts_median_diff', 
                   'watch_ts_std', 
-                  'watched_in_all_time]
+                  'watched_in_all_time']
     return item_stats[list(keep) + added_cols]
   
 def add_age_stats(interactions, item_stats, users_df):
@@ -197,7 +197,8 @@ def add_age_stats(interactions, item_stats, users_df):
     item_stats = item_stats.set_index('item_id').join(age_stats)
     item_stats[['less_35', 'over_35']] = item_stats[['less_35', 'over_35']] \
                   .fillna(0)
-    item_stats.rename(columns = {'less_35': 'younger_35_fraction', 'over_35': 'older_35_fraction': })
+    item_stats.rename(columns = {'less_35': 'younger_35_fraction', 
+                                 'over_35': 'older_35_fraction'})
     return item_stats
 
 def add_sex_stats(interactions, item_stats, users_df):
@@ -219,7 +220,8 @@ def add_sex_stats(interactions, item_stats, users_df):
     sex_stats.fillna(0, inplace = True)
     item_stats = item_stats.set_index('item_id').join(sex_stats)
     item_stats[['F', 'M']] = item_stats[['F', 'M']].fillna(0)
-    item_stats.rename(columns = {'F': ''female_watchers_fraction, 'M''male_watchers_fraction': })
+    item_stats.rename(columns = {'F': 'female_watchers_fraction', 
+                                 'M': 'male_watchers_fraction'})
     return item_stats
                   
 # Item stats for submit
