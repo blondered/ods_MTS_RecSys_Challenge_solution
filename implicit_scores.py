@@ -1,12 +1,6 @@
-import random
-import datetime
 import numpy as np
-import scipy.sparse as sp
 import pandas as pd
-from itertools import islice, cycle
-from more_itertools import pairwise
 from implicit import nearest_neighbours as NN
-import implicit
 from recsys_toolkit import *
 
 def get_implicit_candidates(full_train, overall_known_items_mapped, warm_idx):
