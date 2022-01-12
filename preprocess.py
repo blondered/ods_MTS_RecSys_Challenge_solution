@@ -225,7 +225,8 @@ def add_sex_stats(interactions, item_stats, users_df):
     item_stats = item_stats.set_index('item_id').join(sex_stats)
     item_stats[['F', 'M']] = item_stats[['F', 'M']].fillna(0)
     item_stats.rename(columns = {'F': 'female_watchers_fraction', 
-                                 'M': 'male_watchers_fraction'})
+                                 'M': 'male_watchers_fraction'},
+                     inplace = True)
     return item_stats
                   
 # Item stats for submit
