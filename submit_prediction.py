@@ -9,7 +9,7 @@ users_df = pd.read_csv('data/users_processed.csv')
 items_df = pd.read_csv('data/items_processed.csv')
 interactions_df = pd.read_csv('data/interactions_processed.csv', 
                               parse_dates=['last_watch_dt'])
-submission = pd.read_csv('data/submission.csv')
+submission = pd.read_csv('data/sample_submission.csv')
 overall_known_items = interactions_df.groupby('user_id')['item_id'].apply(
     list).to_dict()
 
