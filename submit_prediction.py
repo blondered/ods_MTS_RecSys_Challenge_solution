@@ -86,7 +86,7 @@ cat_col = ['age',
            'content_type']
 warm_idx = np.intersect1d(submission['user_id'].unique(), 
                           interactions_df['user_id'].unique())
-candidates = pd.read_csv('impl_scores_submit.csv', 
+candidates = pd.read_csv('data/impl_scores_for_submit.csv', 
                          usecols = ['user_id', 'item_id', 'implicit_score'])
 candidates.dropna(subset = ['item_id'], axis = 0, inplace = True)
 submit_feat = candidates.merge(users_df[user_col],
