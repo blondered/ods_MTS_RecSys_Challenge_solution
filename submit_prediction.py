@@ -104,7 +104,7 @@ full_train = full_train.join(item_stats.set_index('item_id'),
 # Renaming columns to match classifier feature names
 cols = ['user_id', 'item_id']
 cols.extend(boost_model.feature_names_)
-cols = cols[:7] + ['watch_cnt_all', 'watch_cnt_last_14'] + cols[9:]
+cols = cols[:7] + ['user_watch_cnt_all', 'user_watch_cnt_last_14'] + cols[9:]
 full_train = full_train[cols]
 full_train_new_names = ['user_id', 'item_id'] + boost_model.feature_names_
 full_train.columns = full_train_new_names
