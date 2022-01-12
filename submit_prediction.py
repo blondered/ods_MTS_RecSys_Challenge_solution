@@ -68,8 +68,8 @@ user_col = ['user_id',
             'income', 
             'sex', 
             'kids_flg', 
-            'boost_watch_cnt_all', 
-            'boost_watch_cnt_last_14']
+            'user_watch_cnt_all', 
+            'user_watch_cnt_last_14']
 item_col = ['item_id', 
             'content_type', 
             'countries_max', 
