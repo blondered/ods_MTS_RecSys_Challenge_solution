@@ -185,7 +185,8 @@ def add_age_stats(interactions, item_stats, users_df):
                       'age_35_44': 'over_35', 
                       'age_45_54': 'over_35', 
                       'age_65_inf': 'over_35', 
-                      'age_55_64': 'over_35'})
+                      'age_55_64': 'over_35'},
+    inplace = True)
     age_stats = interactions.groupby('item_id')['age_overall'] \
                   .value_counts(normalize = True)
     age_stats = pd.DataFrame(age_stats)
@@ -198,7 +199,8 @@ def add_age_stats(interactions, item_stats, users_df):
     item_stats[['less_35', 'over_35']] = item_stats[['less_35', 'over_35']] \
                   .fillna(0)
     item_stats.rename(columns = {'less_35': 'younger_35_fraction', 
-                                 'over_35': 'older_35_fraction'})
+                                 'over_35': 'older_35_fraction'},
+                     inplace = True)
     return item_stats
 
 def add_sex_stats(interactions, item_stats, users_df):
