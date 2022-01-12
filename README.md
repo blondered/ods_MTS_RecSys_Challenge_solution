@@ -4,6 +4,7 @@
 --------
 - Python 3
 - NumPy
+- Pandas
 - Scipy
 - Sklearn
 - Implicit
