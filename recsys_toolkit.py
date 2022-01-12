@@ -317,7 +317,7 @@ class PopularRecommender():
         watched_recs = watched_recs[['user_id', 'item_id']]
         return pd.concat([new_recs, watched_recs], axis = 0)
       
-def fill_with_popular(recs, pop_model_fitted, interactions_df, top_K):
+def fill_with_popular(recs, pop_model_fitted, interactions_df, top_K = 10):
     '''Fills missing recommendations with Popular Recommender.
     Takes top_K first recommendations if length of recs exceeds top_K'''
     recs['len'] = recs['item_id'].apply(lambda x: len(x))
