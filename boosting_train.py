@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import pickle
-from recsys_toolkit import *
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from catboost import CatBoostClassifier
