@@ -1,1 +1,1 @@
-# ods_MTS_RecSys_Challenge_solution
+# ods and MTS RecSys Course Competition solution
