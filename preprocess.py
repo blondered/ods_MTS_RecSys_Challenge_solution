@@ -78,9 +78,9 @@ def add_user_stats(interactions_df, users_df, split_name = ''):
     user_watch_count_all = interactions_df[
         interactions_df['total_dur'] > 300].groupby(by = 'user_id')['item_id'].count()
     max_date_df = interactions_df['last_watch_dt'].max()
-    user_watch_count_last_14 = interactions_boost[
+    user_watch_count_last_14 = interactions_df[
         (interactions_df['total_dur'] > 300) & 
-        (interactions_df['last_watch_dt'] >= max_date_df - pd.Timedelta(days = 14))
+        (interactions_df['last_watch_dt'] >= (max_date_df - pd.Timedelta(days = 14)))
     ].groupby(by = 'user_id')['item_id'].count()
     user_watch_count_all.name = split_name + "user_watch_cnt_all"
     user_watch_count_last_14.name = split_name + "user_watch_cnt_last_14"
