@@ -186,8 +186,7 @@ def add_age_stats(interactions, item_stats, users_df):
                       'age_35_44': 'over_35', 
                       'age_45_54': 'over_35', 
                       'age_65_inf': 'over_35', 
-                      'age_55_64': 'over_35'},
-    inplace = True)
+                      'age_55_64': 'over_35'})
     age_stats = interactions.groupby('item_id')['age_overall'] \
                   .value_counts(normalize = True)
     age_stats = pd.DataFrame(age_stats)
