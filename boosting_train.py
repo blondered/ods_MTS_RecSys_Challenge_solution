@@ -67,8 +67,8 @@ user_col = ['user_id',
             'income', 
             'sex', 
             'kids_flg', 
-            'boost_watch_cnt_all', 
-            'boost_watch_cnt_last_14']
+            'boost_user_watch_cnt_all', 
+            'boost_user_watch_cnt_last_14']
 item_col = ['item_id', 
             'content_type', 
             'countries_max', 
@@ -106,7 +106,7 @@ eval_feat = boost_eval.merge(users_df[user_col],
                                .merge(items_df[item_col],
                                       on = ['item_id'],
                                       how = 'left')
-item_stats = pd.read_csv('item_stats_for_boost_train.csv')
+item_stats = pd.read_csv('data/item_stats_for_boost_train.csv')
 item_stats = item_stats[item_stats_col]
 train_feat = train_feat.join(item_stats.set_index('item_id'), 
                              on = 'item_id', how = 'left')
