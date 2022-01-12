@@ -4,6 +4,15 @@ import pickle
 from recsys_toolkit import *
 from catboost import CatBoostClassifier
 
+# Reading data
+users_df = pd.read_csv('data/users_processed.csv')
+items_df = pd.read_csv('data/items_processed.csv')
+interactions_df = pd.read_csv('data/interactions_processed.csv', 
+                              parse_dates=['last_watch_dt'])
+overall_known_items = interactions_df.groupby('user_id')['item_id'].apply(
+    list).to_dict()
+
+# Tools for checking and saving submission
 def check_len_recs(recs, top_K = 10):
     '''
     Checks if all users have exactly top_K recs
@@ -48,12 +57,6 @@ def check_submission(recs, known_items = overall_known_items):
                     #users_have_duplicates_in_recs.add(user)
     print(f"Duplicated history items in recommendations: {num_duplicated}")
     return
-
-# Reading data
-users_df = pd.read_csv('data/users_processed.csv')
-items_df = pd.read_csv('data/items_processed.csv')
-interactions_df = pd.read_csv('data/interactions_processed.csv', 
-                              parse_dates=['last_watch_dt'])
 
 with open("catboost_trained.pkl", 'rb') as f:
     boost_model = pickle.load(f)
