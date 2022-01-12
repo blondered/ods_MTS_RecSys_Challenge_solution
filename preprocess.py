@@ -191,7 +191,7 @@ def add_age_stats(interactions, item_stats, users_df):
     age_stats = pd.DataFrame(age_stats)
     age_stats.columns = ['value']
     age_stats.reset_index(inplace = True)
-    age_stats.columns = ['item_id', 'age', 'value']
+    age_stats.columns = ['item_id', 'age_overall', 'value']
     age_stats = age_stats.pivot(
         index = 'item_id', columns = 'age_overall', values = 'value').drop(
         'age_unknown', axis = 1)
