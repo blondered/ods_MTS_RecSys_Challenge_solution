@@ -97,7 +97,7 @@ submit_feat = candidates.merge(users_df[user_col],
                                   how = 'left')
 full_train = submit_feat.fillna('None')
 full_train[cat_col] = full_train[cat_col].astype('category')
-item_stats = pd.read_csv('item_stats_for_submit.csv')
+item_stats = pd.read_csv('data/item_stats_for_submit.csv')
 full_train = full_train.join(item_stats.set_index('item_id'), 
                              on = 'item_id', how = 'left')
 
