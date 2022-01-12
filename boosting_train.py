@@ -22,7 +22,7 @@ before_boosting = interactions_df[(interactions_df['last_watch_dt'] <=
 boost_idx = boosting_data['user_id'].unique() 
 
 # taking candidates from implicit model and generating positive samples
-candidates = pd.read_csv('impl_scores_boost_train.csv')
+candidates = pd.read_csv('data/impl_scores_for_boost_train.csv')
 candidates['id'] = candidates.index
 pos = candidates.merge(boosting_data[['user_id', 'item_id']], 
                        on = ['user_id', 'item_id'], how = 'inner')
