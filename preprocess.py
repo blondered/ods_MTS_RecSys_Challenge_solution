@@ -189,8 +189,9 @@ def add_age_stats(interactions, item_stats, users_df):
     age_stats = interactions.groupby('item_id')['age_overall'] \
                   .value_counts(normalize = True)
     age_stats = pd.DataFrame(age_stats)
+    age_stats.columns = ['value']
     age_stats.reset_index(inplace = True)
-    age_stats.coumns = ['item_id', 'age', 'value']
+    age_stats.columns = ['item_id', 'age', 'value']
     age_stats = age_stats.pivot(
         index = 'item_id', columns = 'age_overall', values = 'value').drop(
         'age_unknown', axis = 1)
@@ -216,6 +217,7 @@ def add_sex_stats(interactions, item_stats, users_df):
     sex_stats = interactions.groupby('item_id')['sex'] \
                   .value_counts(normalize = True)
     sex_stats = pd.DataFrame(sex_stats)
+    sex_stats.columns = ['value']
     sex_stats.reset_index(inplace = True)
     sex_stats.columns = ['item_id', 'sex', 'value']
     sex_stats = sex_stats.pivot(index = 'item_id', 
