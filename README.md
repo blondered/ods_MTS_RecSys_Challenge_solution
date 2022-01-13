@@ -10,11 +10,12 @@
 - Implicit
 - Catboost
 
-## Dataset
-You can use the following script to download competition dataset:
+## End-2-end solution
+You can use the following script to reproduce my solution:
 ```
-./get_data.sh
+./full_solution.sh
 ```
+
 ## Solution description
 My solution included a two-stage model. I used item-item CF from implicit library to generate candidates with their scores and Catboost classifier to predict final ranks with classification objective. Recommendations for cold users were made with Popular items.
 
