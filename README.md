@@ -49,4 +49,4 @@ User features:
 - Income
 - "Kids flag" boolean feature
 
-![Shap values](https://github.com/blondered/ods_MTS_RecSys_Challenge_solution/blob/94aa9527850b738de36f7faf89c5201b6c104845/pics/shap_values.png)
+![Shap values](https://github.com/blondered/ods_MTS_RecSys_Challenge_solution/blob/63a4ef4968c0bca35ecedacde436e00507c6d6aa/pics/shap_values.png)
