@@ -24,7 +24,7 @@ Implicit candidates were calculated for the last 14 days of the interactions. Th
 
 For final submission implicit candidates and catboost predictions were recalculated on the whole dataset.
 
-## Feature importance of the Catboost model
+## Features of the Catboost model
 ![Catboost feature importance](https://github.com/blondered/ods_MTS_RecSys_Challenge_solution/blob/94aa9527850b738de36f7faf89c5201b6c104845/pics/feature_importance.png)
 
 The following features were used in the model.
