@@ -16,7 +16,10 @@ You can use the following script to download competition dataset:
 ./get_data.sh
 ```
 ## Solution description
-My solution included a two-stage model. I used item CF from implicit library to generate candidates with their scores and Catboost classifier to predict final ranks. Recommendations for cold users were made with Popular items.
+My solution included a two-stage model. I used item CF from implicit library to generate candidates with their scores and Catboost classifier to predict final ranks with classification objective. Recommendations for cold users were made with Popular items.
+Implicit model parameters were chosen on sliding time window cross validation. The best scores were achieved by Cosine recommender model, taking only last 20 interactions for each user. 100 candidates with their scores were generated for each user, filtering all items that user had interactions with.
+Implicit candidates were calculated for the last 14 days of the interactions. Then catboost model was trained on positive interactions from the candidates list on last 14 days. Random negative sampling was applied.
+Features for Catboost model were chosen on both local validation and leaderboard probing.
 
 ## Feature importance of the Catboost model
 ![Catboost feature importance](https://github.com/blondered/ods_MTS_RecSys_Challenge_solution/blob/94aa9527850b738de36f7faf89c5201b6c104845/pics/feature_importance.png)
