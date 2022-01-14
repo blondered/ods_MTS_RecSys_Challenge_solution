@@ -49,7 +49,7 @@ def stratify(train, filter_dur=300, loyal_treshold=15):
     return counting['strata']
 
 
-class TimeRangeSplit():
+class TimeRangeSplit:
     """
         https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.date_range.html
     """
@@ -242,7 +242,7 @@ def generate_implicit_recs_mapper(
     return _recs_mapper
 
 
-class PopularRecommender():
+class PopularRecommender:
     """
     Makes recommendations based on popular items
     """
