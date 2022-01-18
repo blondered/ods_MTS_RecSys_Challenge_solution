@@ -1,4 +1,4 @@
-# ods and MTS RecSys Course Competition solution
+# ods and MTS RecSys Course Competition 4th place solution
 
 [Link to competition](https://ods.ai/tracks/recsys-course2021/competitions/competition-recsys-21)
 
