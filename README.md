@@ -34,6 +34,13 @@ Implicit candidates were calculated for the last 14 days of the interactions. Th
 
 For final submission implicit candidates and catboost predictions were recalculated on the whole dataset.
 
+## EDA
+Please look at Kion_EDA.ipynb for my analysis.
+
+## Validation scheme for a two-stage model
+Exploratory data analysis showed anomalies in weekly distributions of interactions. Also series interactions history was erased from the dataset, leaving only the last interaction between each item for user. Because of this only the last one or two weeks of the dataset were somehow close to the leaderboard. This was a real problem for validating a two-stage model. My solution was to train the model on last 14 days of the dataset and validate the ensemble on the previous week and on the next week (which was separated for the leaderboard).
+![Validation scheme](https://github.com/blondered/ods_MTS_RecSys_Challenge_solution/blob/58c06a578e08947a2c6fa08edcc117e7e34b7f73/pics/val_scheme.jpg)
+
 ## Features of the Catboost model
 ![Catboost feature importance](https://github.com/blondered/ods_MTS_RecSys_Challenge_solution/blob/94aa9527850b738de36f7faf89c5201b6c104845/pics/feature_importance.png)
 
