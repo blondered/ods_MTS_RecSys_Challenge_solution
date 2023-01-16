@@ -1,8 +1,9 @@
+import pickle
+
 import numpy as np
 import pandas as pd
-import pickle
-from recsys_toolkit import *
-from catboost import CatBoostClassifier
+
+from recsys_toolkit import PopularRecommender, fill_with_popular
 
 # Reading data
 users_df = pd.read_csv("data/users_processed.csv")

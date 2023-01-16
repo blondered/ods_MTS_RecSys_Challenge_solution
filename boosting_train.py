@@ -1,9 +1,10 @@
+import pickle
+
 import numpy as np
 import pandas as pd
-import pickle
+from catboost import CatBoostClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
-from catboost import CatBoostClassifier
 
 # reading data
 users_df = pd.read_csv("data/users_processed.csv")

@@ -1,10 +1,11 @@
 """Tools for recommender systems tasks"""
 
-import pandas as pd
+from itertools import cycle, islice
+
 import numpy as np
-from more_itertools import pairwise
+import pandas as pd
 import scipy.sparse as sp
-from itertools import islice, cycle
+from more_itertools import pairwise
 
 
 def compute_metrics(test, recs, top_N):

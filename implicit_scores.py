@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from implicit import nearest_neighbours as NN
-from recsys_toolkit import *
+
+from recsys_toolkit import generate_implicit_recs_mapper, get_coo_matrix
 
 
 def get_implicit_candidates(full_train, overall_known_items_mapped, warm_idx):
