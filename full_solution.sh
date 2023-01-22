@@ -1,14 +1,11 @@
 #! /bin/bash
 
-RAW_DATA_DIR="data/raw"
-INTERIM_DATA_DIR="data/interim"
+# bash src/get_data.sh
+# python src/data/preprocess.py 
 
-mkdir -p "$RAW_DATA_DIR"
-mkdir -p "$INTERIM_DATA_DIR"
+python src/features/add_item_stats.py data/interim/interactions_clean.csv data/interim/items_clean.csv data/interim/users_clean.csv data/interim/items_w_stats_for_train.csv data/interim/items_w_stats_for_submit.csv
 
-bash src/get_data.sh $RAW_DATA_DIR
-python src/data/preprocess.py $RAW_DATA_DIR $INTERIM_DATA_DIR
-python src/data/featurize.py $RAW_DATA_DIR $INTERIM_DATA_DIR
+# python src/data/featurize.py
 
 # python implicit_scores.py
 # python boosting_train.py

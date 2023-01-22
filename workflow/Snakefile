@@ -1,8 +1,10 @@
 rule all:
     input:
-        "data/interim/interactions_processed.csv",
-        "data/interim/items_processed.csv",
-        "data/interim/users_processed.csv"
+        "data/interim/interactions_clean.csv",
+        "data/interim/items_clean.csv",
+        "data/interim/users_clean.csv",
+        "data/interim/items_w_stats_for_train.csv",
+        "data/interim/items_w_stats_for_submit.csv"
 
 rule get_data:
     output:
@@ -19,8 +21,19 @@ rule preprocess:
         "data/raw/items.csv",
         "data/raw/users.csv"
     output:
-        "data/interim/interactions_processed.csv",
-        "data/interim/items_processed.csv",
-        "data/interim/users_processed.csv"
+        "data/interim/interactions_clean.csv",
+        "data/interim/items_clean.csv",
+        "data/interim/users_clean.csv"
     shell:
         "python src/data/preprocess.py"
+
+rule add_item_stats:
+    input:
+        "data/interim/interactions_clean.csv",
+        "data/interim/items_clean.csv",
+        "data/interim/users_clean.csv"
+    output:
+        "data/interim/items_w_stats_for_train.csv",
+        "data/interim/items_w_stats_for_submit.csv"
+    shell:
+        "python src/features/add_item_stats.py {input[0]} {input[1]} {input[2]} {output[0]} {output[1]}"                     

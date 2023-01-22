@@ -74,9 +74,9 @@ def preprocess() -> None:
     items_df.drop(["countries_list", "genres_list", "studios_list"], axis=1, inplace=True)
 
     # Saving preprocessed files
-    users_df.to_csv("data/interim/users_processed.csv", index=False)
-    items_df.to_csv("data/interim/items_processed.csv", index=False)
-    interactions_df.to_csv("data/interim/interactions_processed.csv", index=False)
+    users_df.to_csv("data/interim/users_clean.csv", index=False)
+    items_df.to_csv("data/interim/items_clean.csv", index=False)
+    interactions_df.to_csv("data/interim/interactions_clean.csv", index=False)
 
 
 if __name__ == "__main__":

@@ -1,61 +1,9 @@
+import pandas as pd
+import numpy as np
+import click
 
 
-# User stats feature engineering
-
-
-def add_user_stats(interactions_df, users_df, split_name=""):
-    """
-    Computes user watches stats for particular interactions date split
-    and adds them to users dataframe with specific name
-    """
-    user_watch_count_all = (
-        interactions_df[interactions_df["total_dur"] > 300]
-        .groupby(by="user_id")["item_id"]
-        .count()
-    )
-    max_date_df = interactions_df["last_watch_dt"].max()
-    user_watch_count_last_14 = (
-        interactions_df[
-            (interactions_df["total_dur"] > 300)
-            & (
-                interactions_df["last_watch_dt"]
-                >= (max_date_df - pd.Timedelta(days=14))
-            )
-        ]
-        .groupby(by="user_id")["item_id"]
-        .count()
-    )
-    user_watch_count_all.name = split_name + "user_watch_cnt_all"
-    user_watch_count_last_14.name = split_name + "user_watch_cnt_last_14"
-    user_watches = pd.DataFrame(user_watch_count_all).join(
-        user_watch_count_last_14, how="outer"
-    )
-    user_watches.fillna(0, inplace=True)
-    cols = user_watches.columns
-    user_watches[cols] = user_watches[cols].astype("int64")
-    users_df = users_df.join(user_watches, on="user_id", how="outer")
-    users_df[cols] = users_df[cols].fillna(0)
-    users_df["age"] = users_df["age"].fillna("age_unknown")
-    users_df["income"] = users_df["income"].fillna("income_unknown")
-    users_df["sex"] = users_df["sex"].fillna("sex_unknown")
-    users_df["kids_flg"] = users_df["kids_flg"].fillna(False)
-    return users_df
-
-
-max_date = interactions_df["last_watch_dt"].max()
-boosting_split_date = max_date - pd.Timedelta(days=14)
-interactions_boost = interactions_df[
-    interactions_df["last_watch_dt"] <= boosting_split_date
-]
-users_df = add_user_stats(interactions_boost, users_df, split_name="boost_")
-users_df = add_user_stats(interactions_df, users_df, split_name="")
-
-# TODO: SAVE HERE!!
-
-# Item stats feature engineering
-
-
-def add_item_watches_stats(interactions_df, items_df, item_stats):
+def add_item_watches_stats(interactions_df, item_stats):
     """
     Computes item watches stats for particular interactions date split
     and adds them to item_stats dataframe
@@ -65,13 +13,13 @@ def add_item_watches_stats(interactions_df, items_df, item_stats):
         """Computes smoothed interactions statistics for item"""
         series = np.array(series)
         ext = np.r_[
-            2 * series[0] - series[window_size - 1 :: -1],
+            2 * series[0] - series[window_size-1::-1],
             series,
             2 * series[-1] - series[-1:-window_size:-1],
         ]
         weights = smoothing_func(window_size)
         smoothed = np.convolve(weights / weights.sum(), ext, mode="same")
-        return smoothed[window_size : -window_size + 1]
+        return smoothed[window_size:-window_size+1]
 
     def trend_slope(series, window_size=7, smoothing_func=np.hamming):
         """Computes trend slope for item interactions"""
@@ -197,22 +145,53 @@ def add_sex_stats(interactions, item_stats, users_df):
     return item_stats
 
 
-# Item stats for submit
-item_stats = items_df[["item_id"]]
-item_stats = item_stats.set_index("item_id")
-item_stats = add_item_watches_stats(interactions_df, items_df, item_stats)
-item_stats.fillna(0, inplace=True)
-item_stats = add_sex_stats(interactions_df, item_stats, users_df)
-item_stats = add_age_stats(interactions_df, item_stats, users_df)
-item_stats.to_csv("data/item_stats_for_submit.csv", index=True)
-
-# Item stats for boosting training
-item_stats = items_df[["item_id"]]
-item_stats = item_stats.set_index("item_id")
-item_stats = add_item_watches_stats(interactions_boost, items_df, item_stats)
-item_stats.fillna(0, inplace=True)
-item_stats = add_sex_stats(interactions_boost, item_stats, users_df)
-item_stats = add_age_stats(interactions_boost, item_stats, users_df)
-item_stats.to_csv("data/item_stats_for_boost_train.csv", index=True)
+def compute_stats_and_save(
+    interactions_df: pd.DataFrame,
+    items_df: pd.DataFrame,
+    users_df: pd.DataFrame,
+    items_output_path: str,
+) -> None:
+    item_stats = items_df[["item_id"]].set_index("item_id")
+    item_stats = add_item_watches_stats(interactions_df, item_stats)
+    item_stats.fillna(0, inplace=True)
+    item_stats = add_sex_stats(interactions_df, item_stats, users_df)
+    item_stats = add_age_stats(interactions_df, item_stats, users_df)
+    item_stats.to_csv(items_output_path, index=True)
 
 
+@click.command()
+@click.argument("interactions_input_path", type=click.Path())
+@click.argument("items_input_path", type=click.Path())
+@click.argument("users_input_path", type=click.Path())
+@click.argument("items_output_path_for_train", type=click.Path())
+@click.argument("items_output_path_for_submit", type=click.Path())
+def add_item_stats(
+    interactions_input_path: str,
+    items_input_path: str,
+    users_input_path: str,
+    items_output_path_for_train: str,
+    items_output_path_for_submit: str,
+) -> None:
+    # read data
+    interactions_df = pd.read_csv(interactions_input_path, parse_dates=["last_watch_dt"])
+    items_df = pd.read_csv(items_input_path)
+    users_df = pd.read_csv(users_input_path)
+
+    # prepare interactions df for boosting train period of time
+    max_date = interactions_df["last_watch_dt"].max()
+    boosting_split_date = max_date - pd.Timedelta(days=14)
+    interactions_boost = interactions_df[
+        interactions_df["last_watch_dt"] <= boosting_split_date
+    ]
+
+    # compute stats and save data
+    compute_stats_and_save(
+        interactions_df, items_df, users_df, items_output_path_for_submit
+    )
+    compute_stats_and_save(
+        interactions_boost, items_df, users_df, items_output_path_for_train
+    )
+
+
+if __name__ == "__main__":
+    add_item_stats()
