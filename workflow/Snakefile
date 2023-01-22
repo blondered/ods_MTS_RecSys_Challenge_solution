@@ -1,0 +1,26 @@
+rule all:
+    input:
+        "data/interim/interactions_processed.csv",
+        "data/interim/items_processed.csv",
+        "data/interim/users_processed.csv"
+
+rule get_data:
+    output:
+        "data/raw/interactions.csv",
+        "data/raw/items.csv",
+        "data/raw/sample_submission.csv",
+        "data/raw/users.csv"
+    shell:
+        "source src/get_data.sh"
+
+rule preprocess:
+    input:
+        "data/raw/interactions.csv",
+        "data/raw/items.csv",
+        "data/raw/users.csv"
+    output:
+        "data/interim/interactions_processed.csv",
+        "data/interim/items_processed.csv",
+        "data/interim/users_processed.csv"
+    shell:
+        "python src/data/preprocess.py"

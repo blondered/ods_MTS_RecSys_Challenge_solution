@@ -1,14 +1,13 @@
 import numpy as np
 import pandas as pd
-import argparse
 
 
-def preprocess(raw_data_dir: str, interim_data_dir: str) -> None:
+def preprocess() -> None:
 
     # Reading files
-    users_df = pd.read_csv(f"{raw_data_dir}/users.csv")
-    items_df = pd.read_csv(f"{raw_data_dir}/items.csv")
-    interactions_df = pd.read_csv(f"{raw_data_dir}/interactions.csv", parse_dates=["last_watch_dt"])
+    users_df = pd.read_csv("data/raw/users.csv")
+    items_df = pd.read_csv("data/raw/items.csv")
+    interactions_df = pd.read_csv("data/raw/interactions.csv", parse_dates=["last_watch_dt"])
 
     # Interactions preprocessing
     interactions_df["watched_pct"] = interactions_df["watched_pct"].astype(pd.Int8Dtype()).fillna(0)
@@ -75,18 +74,10 @@ def preprocess(raw_data_dir: str, interim_data_dir: str) -> None:
     items_df.drop(["countries_list", "genres_list", "studios_list"], axis=1, inplace=True)
 
     # Saving preprocessed files
-    users_df.to_csv(f"{interim_data_dir}/users_processed.csv", index=False)
-    items_df.to_csv(f"{interim_data_dir}/items_processed.csv", index=False)
-    interactions_df.to_csv(f"{interim_data_dir}/interactions_processed.csv", index=False)
-
-
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("raw_data_dir")
-    parser.add_argument("interim_data_dir")
-    args = parser.parse_args()
-    preprocess(args.raw_data_dir, args.interim_data_dir)
+    users_df.to_csv("data/interim/users_processed.csv", index=False)
+    items_df.to_csv("data/interim/items_processed.csv", index=False)
+    interactions_df.to_csv("data/interim/interactions_processed.csv", index=False)
 
 
 if __name__ == "__main__":
-    main()
+    preprocess()
