@@ -1,6 +1,5 @@
-
-
-# User stats feature engineering
+import pandas as pd
+import click
 
 
 def add_user_stats(interactions_df, users_df, split_name=""):
@@ -42,12 +41,28 @@ def add_user_stats(interactions_df, users_df, split_name=""):
     return users_df
 
 
-max_date = interactions_df["last_watch_dt"].max()
-boosting_split_date = max_date - pd.Timedelta(days=14)
-interactions_boost = interactions_df[
-    interactions_df["last_watch_dt"] <= boosting_split_date
-]
-users_df = add_user_stats(interactions_boost, users_df, split_name="boost_")
-users_df = add_user_stats(interactions_df, users_df, split_name="")
+@click.command()
+@click.argument("interactions_input_path", type=click.Path())
+@click.argument("users_input_path", type=click.Path())
+@click.argument("users_output_path", type=click.Path())
+def add_and_save_user_stats(
+    interactions_input_path: str,
+    users_input_path: str,
+    users_output_path: str,
+) -> None:
+    interactions_df = pd.read_csv(interactions_input_path, parse_dates=["last_watch_dt"])
+    users_df = pd.read_csv(users_input_path)
 
-# TODO: SAVE HERE!!
+    max_date = interactions_df["last_watch_dt"].max()
+    boosting_split_date = max_date - pd.Timedelta(days=14)
+    interactions_boost = interactions_df[
+        interactions_df["last_watch_dt"] <= boosting_split_date
+    ]
+    
+    users_df = add_user_stats(interactions_boost, users_df, split_name="boost_")
+    users_df = add_user_stats(interactions_df, users_df, split_name="")
+    users_df.to_csv(users_output_path, index=True)
+
+
+if __name__ == "__main__":
+    add_and_save_user_stats()
