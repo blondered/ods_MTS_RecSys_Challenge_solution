@@ -1,5 +1,6 @@
 import pandas as pd
 import click
+import logging
 
 
 def add_user_stats(interactions_df, users_df, split_name=""):
@@ -50,6 +51,9 @@ def add_and_save_user_stats(
     users_input_path: str,
     users_output_path: str,
 ) -> None:
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Adding user stats")
+    
     interactions_df = pd.read_csv(interactions_input_path, parse_dates=["last_watch_dt"])
     users_df = pd.read_csv(users_input_path)
 

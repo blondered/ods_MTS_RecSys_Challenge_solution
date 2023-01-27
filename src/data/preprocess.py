@@ -1,8 +1,11 @@
 import numpy as np
 import pandas as pd
+import logging
 
 
 def preprocess() -> None:
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Preprocessing data")
 
     # Reading files
     users_df = pd.read_csv("data/raw/users.csv")

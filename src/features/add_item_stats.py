@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import click
-
+import logging
 
 def add_item_watches_stats(interactions_df, item_stats):
     """
@@ -172,6 +172,8 @@ def add_item_stats(
     items_output_path_for_train: str,
     items_output_path_for_submit: str,
 ) -> None:
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Adding user stats")
     # read data
     interactions_df = pd.read_csv(interactions_input_path, parse_dates=["last_watch_dt"])
     items_df = pd.read_csv(items_input_path)
