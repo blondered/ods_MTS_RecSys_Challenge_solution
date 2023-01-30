@@ -1,5 +1,6 @@
 venv
 data
+models
 catboost_info
 .DS_Store
 .snakemake
