@@ -172,13 +172,13 @@ def train_first_stage(interactions_input_path: str, submission_input_path: str, 
     impl_recs_for_submit = get_implicit_candidates(
         interactions_df, overall_known_items_mapped, warm_idx, users_mapping, items_mapping, items_inv_mapping
     )
-    impl_recs_for_submit.to_csv(scores_output_path_for_train, index=False)
+    impl_recs_for_submit.to_csv(scores_output_path_for_submit, index=False)
 
     logging.info("Getting candidates for train")    
     impl_recs_for_boost_train = get_implicit_candidates(
         before_boosting, before_boosting_known_items_mapped, boost_warm_idx, users_mapping, items_mapping, items_inv_mapping
     )
-    impl_recs_for_boost_train.to_csv(scores_output_path_for_submit, index=False)
+    impl_recs_for_boost_train.to_csv(scores_output_path_for_train, index=False)
 
     logging.info("All done") 
 if __name__ == "__main__":

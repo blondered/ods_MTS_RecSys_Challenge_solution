@@ -57,9 +57,6 @@ def train_second_stage(
     neg_sampling["num_choices"] = np.clip(
         neg_sampling["item_id"] * num_negatives, a_min=0, a_max=25
     )
-    # neg.to_csv("data/interim/neg.csv")
-    # pos.to_csv("data/interim/pos.csv")
-    # neg_sampling.to_csv("data/interim/neg_sampling.csv")
     func = lambda row: np.random.choice(row["id"], size=row["num_choices"], replace=False)
     neg_sampling["sample_idx"] = neg_sampling.apply(func, axis=1)
     idx_chosen = neg_sampling["sample_idx"].explode().values
@@ -158,9 +155,10 @@ def train_second_stage(
         "l2_leaf_reg": 27,
         "thread_count": -1,
         "verbose": 200,
-        "task_type": "GPU",
-        "devices": "0:1",
-        "bootstrap_type": "Poisson",
+        "task_type": "CPU",
+        # "task_type": "GPU",
+        # "devices": "0:1",
+        # "bootstrap_type": "Poisson",
     }
     boost_model = CatBoostClassifier(**params)
     boost_model.fit(

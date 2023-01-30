@@ -156,7 +156,8 @@ def compute_stats_and_save(
     item_stats.fillna(0, inplace=True)
     item_stats = add_sex_stats(interactions_df, item_stats, users_df)
     item_stats = add_age_stats(interactions_df, item_stats, users_df)
-    item_stats.to_csv(items_output_path, index=True)
+    items_df_with_features = items_df.join(item_stats, on="item_id", how="left")
+    items_df_with_features.to_csv(items_output_path, index=True)
 
 
 @click.command()
