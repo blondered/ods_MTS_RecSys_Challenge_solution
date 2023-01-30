@@ -1,29 +1,21 @@
 # ods and MTS RecSys Course Competition 4th place solution
 
 [Link to competition](https://ods.ai/tracks/recsys-course2021/competitions/competition-recsys-21)
+[My presentation at MTS RecSys meetup after the competition] (https://www.youtube.com/watch?v=rTjm0IJNpsQ)
 
 ## Competition objective and result
 The competition was conducted on MTS Kion streaming service dataset with user-item interactions over a 6 months period and both users and items features. The task was to make 10 recommendations for all users in a test period (1 week). The metric in the competition was map@10.
 
 Baseline solution was a simple top weekly items recommendation for all users and provided 0,091 on public leaderboard.
 
-With a two-stage model of implicit recommendations and gradient boostig I was able to achieve 0,115 and a 4th place on public leaderboard. Private leaderboard scores are not revealed yet.
+With a two-stage model of implicit recommendations and gradient boostig I was able to achieve 0,115 and a 4th place on both public and private leaderboard.
 
 ## End-2-end solution
 You can use the following script to reproduce my solution:
 ```
-./full_solution.sh
+pip install -r requirements.txt
+snakemake --cores all
 ```
-
-#### Requirements
-
-- Python 3
-- NumPy
-- Pandas
-- Scipy
-- Sklearn
-- Implicit
-- Catboost
 
 ## Solution description
 My solution included a two-stage model. I used item-item CF from implicit library to generate candidates with their scores and Catboost classifier to predict final ranks with classification objective. Recommendations for cold users were made with Popular items.
