@@ -1,7 +1,8 @@
 # ods and MTS RecSys Course Competition 4th place solution
 
 [Link to competition](https://ods.ai/tracks/recsys-course2021/competitions/competition-recsys-21)
-[My presentation at MTS RecSys meetup after the competition] (https://www.youtube.com/watch?v=rTjm0IJNpsQ)
+
+[Me describing the solution at MTS RecSys meetup](https://www.youtube.com/watch?v=rTjm0IJNpsQ)
 
 ## Competition objective and result
 The competition was conducted on MTS Kion streaming service dataset with user-item interactions over a 6 months period and both users and items features. The task was to make 10 recommendations for all users in a test period (1 week). The metric in the competition was map@10.
