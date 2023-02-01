@@ -4,7 +4,7 @@
 
 [Me describing the solution at MTS RecSys meetup](https://www.youtube.com/watch?v=rTjm0IJNpsQ)
 
-[Article about the dataset which we wrote with co-authors and presented at RecSys CARS Workshop 2022](https://arxiv.org/abs/2209.00325)
+[Article about the dataset which we wrote with co-authors and presented at the ACM RecSys CARS Workshop 2022](https://arxiv.org/abs/2209.00325)
 
 ## Competition objective and result
 The competition was conducted on MTS Kion streaming service dataset with user-item interactions over a 6 months period and both users and items features. The task was to make 10 recommendations for all users in a test period (1 week). The metric in the competition was map@10.
