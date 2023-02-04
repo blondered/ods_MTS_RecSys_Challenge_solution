@@ -1,10 +1,10 @@
+import logging
 import pickle
+from itertools import cycle, islice
+
 import click
 import numpy as np
 import pandas as pd
-from itertools import islice, cycle
-import logging
-
 
 
 def to_string_func(x):
@@ -14,7 +14,6 @@ def to_string_func(x):
     x = list(x)
     y = list(map(str, x))
     return "[" + (", ").join(y) + "]"
-
 
 
 class PopularRecommender:
@@ -121,6 +120,7 @@ def fill_with_popular(recs, pop_model_fitted, interactions_df, top_K=10):
     )
     return total_recs
 
+
 @click.command()
 @click.argument("interactions_input_path", type=click.Path())
 @click.argument("users_processed_input_path", type=click.Path())
@@ -129,8 +129,14 @@ def fill_with_popular(recs, pop_model_fitted, interactions_df, top_K=10):
 @click.argument("sample_submission_input_path", type=click.Path())
 @click.argument("model_input_path", type=click.Path())
 @click.argument("submission_output_path", type=click.Path())
-def prepare_submission(interactions_input_path: str, users_processed_input_path: str, items_processed_for_submit_input_path: str,
-implicit_scores_for_submit_input_path: str, sample_submission_input_path: str, model_input_path: str, submission_output_path: str
+def prepare_submission(
+    interactions_input_path: str,
+    users_processed_input_path: str,
+    items_processed_for_submit_input_path: str,
+    implicit_scores_for_submit_input_path: str,
+    sample_submission_input_path: str,
+    model_input_path: str,
+    submission_output_path: str,
 ) -> None:
     # Reading data
     logging.basicConfig(level=logging.INFO)
@@ -142,12 +148,13 @@ implicit_scores_for_submit_input_path: str, sample_submission_input_path: str, m
     )
     submission = pd.read_csv(sample_submission_input_path)
     candidates = pd.read_csv(
-        implicit_scores_for_submit_input_path, usecols=["user_id", "item_id", "implicit_score"]
+        implicit_scores_for_submit_input_path,
+        usecols=["user_id", "item_id", "implicit_score"],
     )
     overall_known_items = (
         interactions_df.groupby("user_id")["item_id"].apply(list).to_dict()
     )
-   
+
     with open(model_input_path, "rb") as f:
         boost_model = pickle.load(f)
 
@@ -179,13 +186,15 @@ implicit_scores_for_submit_input_path: str, sample_submission_input_path: str, m
     )
 
     candidates.dropna(subset=["item_id"], axis=0, inplace=True)
-    submit_feat = candidates.merge(users_df[user_col], on=["user_id"], how="left").merge(
-        items_df[item_col], on=["item_id"], how="left"
-    )
+    submit_feat = candidates.merge(
+        users_df[user_col], on=["user_id"], how="left"
+    ).merge(items_df[item_col], on=["item_id"], how="left")
     full_train = submit_feat.fillna("None")
     full_train[cat_col] = full_train[cat_col].astype("category")
     item_stats = pd.read_csv("data/item_stats_for_submit.csv")
-    full_train = full_train.join(item_stats.set_index("item_id"), on="item_id", how="left")
+    full_train = full_train.join(
+        item_stats.set_index("item_id"), on="item_id", how="left"
+    )
 
     # Renaming columns to match classifier feature names
     cols = ["user_id", "item_id"]
@@ -196,7 +205,9 @@ implicit_scores_for_submit_input_path: str, sample_submission_input_path: str, m
     full_train.columns = full_train_new_names
 
     # Making predictions for warm users
-    y_pred_all = boost_model.predict_proba(full_train.drop(["user_id", "item_id"], axis=1))
+    y_pred_all = boost_model.predict_proba(
+        full_train.drop(["user_id", "item_id"], axis=1)
+    )
     full_train["boost_pred"] = y_pred_all[:, 1]
     full_train = full_train[["user_id", "item_id", "boost_pred"]]
     full_train = full_train.sort_values(
@@ -211,7 +222,9 @@ implicit_scores_for_submit_input_path: str, sample_submission_input_path: str, m
 
     # Making predictions for cold users with Popular Recommender
     idx_for_popular = list(
-        set(submission["user_id"].unique()).difference(set(boost_recs["user_id"].unique()))
+        set(submission["user_id"].unique()).difference(
+            set(boost_recs["user_id"].unique())
+        )
     )
     pop_model = PopularRecommender(days=30, dt_column="last_watch_dt", with_filter=True)
     pop_model.fit(interactions_df)
@@ -227,6 +240,7 @@ implicit_scores_for_submit_input_path: str, sample_submission_input_path: str, m
     all_recs["item_id"] = all_recs["item_id"].apply(to_string_func)
     all_recs.to_csv(submission_output_path, index=False)
     logging.info("All done")
+
 
 if __name__ == "__main__":
     prepare_submission()

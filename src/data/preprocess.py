@@ -1,7 +1,8 @@
+import logging
+
+import click
 import numpy as np
 import pandas as pd
-import logging
-import click
 
 
 @click.command()

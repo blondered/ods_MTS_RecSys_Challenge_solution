@@ -1,7 +1,8 @@
-import pandas as pd
-import numpy as np
-import click
 import logging
+
+import click
+import numpy as np
+import pandas as pd
 
 
 def add_item_watches_stats(interactions_df, item_stats):

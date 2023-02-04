@@ -1,6 +1,7 @@
-import pandas as pd
-import click
 import logging
+
+import click
+import pandas as pd
 
 
 def add_user_stats(interactions_df, users_df, split_name=""):

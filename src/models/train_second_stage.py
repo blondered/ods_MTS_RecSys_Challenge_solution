@@ -1,7 +1,7 @@
-import pickle
-import click
 import logging
+import pickle
 
+import click
 import numpy as np
 import pandas as pd
 from catboost import CatBoostClassifier
@@ -16,8 +16,11 @@ from sklearn.utils import shuffle
 @click.argument("implicit_scores_for_train_input_path", type=click.Path())
 @click.argument("model_output_path", type=click.Path())
 def train_second_stage(
-    interactions_input_path: str, users_processed_input_path: str, items_processed_for_train_input_path: str,
-    implicit_scores_for_train_input_path: str, model_output_path: str
+    interactions_input_path: str,
+    users_processed_input_path: str,
+    items_processed_for_train_input_path: str,
+    implicit_scores_for_train_input_path: str,
+    model_output_path: str,
 ) -> None:
     logging.basicConfig(level=logging.INFO)
     logging.info("Training second stage model")
@@ -55,7 +58,9 @@ def train_second_stage(
     neg_sampling["num_choices"] = np.clip(
         neg_sampling["item_id"] * num_negatives, a_min=0, a_max=25
     )
-    func = lambda row: np.random.choice(row["id"], size=row["num_choices"], replace=False)
+    func = lambda row: np.random.choice(
+        row["id"], size=row["num_choices"], replace=False
+    )
     neg_sampling["sample_idx"] = neg_sampling.apply(func, axis=1)
     idx_chosen = neg_sampling["sample_idx"].explode().values
     neg = neg[neg["id"].isin(idx_chosen)]
@@ -118,17 +123,21 @@ def train_second_stage(
         "older_35_fraction",
     ]
     cat_col = ["age", "income", "sex", "content_type"]
-    train_feat = boost_train.merge(users_df[user_col], on=["user_id"], how="left").merge(
-        items_df[item_col], on=["item_id"], how="left"
-    )
+    train_feat = boost_train.merge(
+        users_df[user_col], on=["user_id"], how="left"
+    ).merge(items_df[item_col], on=["item_id"], how="left")
     eval_feat = boost_eval.merge(users_df[user_col], on=["user_id"], how="left").merge(
         items_df[item_col], on=["item_id"], how="left"
     )
 
     item_stats = pd.read_csv(items_processed_for_train_input_path)
     item_stats = item_stats[item_stats_col]
-    train_feat = train_feat.join(item_stats.set_index("item_id"), on="item_id", how="left")
-    eval_feat = eval_feat.join(item_stats.set_index("item_id"), on="item_id", how="left")
+    train_feat = train_feat.join(
+        item_stats.set_index("item_id"), on="item_id", how="left"
+    )
+    eval_feat = eval_feat.join(
+        item_stats.set_index("item_id"), on="item_id", how="left"
+    )
     drop_col = ["user_id", "item_id"]
     target_col = ["target"]
     X_train = train_feat.drop(drop_col + target_col, axis=1)
