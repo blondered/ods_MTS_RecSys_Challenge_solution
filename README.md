@@ -1,8 +1,8 @@
 # ods and MTS RecSys Course Competition 4th place solution
 
-[Link to competition at ods.ai](https://ods.ai/tracks/recsys-course2021/competitions/competition-recsys-21)
+[Link to the competition at ods.ai](https://ods.ai/tracks/recsys-course2021/competitions/competition-recsys-21)
 
-[Me describing the solution at MTS RecSys meetup](https://www.youtube.com/watch?v=rTjm0IJNpsQ)
+[Me describing the solution at the MTS RecSys meetup](https://www.youtube.com/watch?v=rTjm0IJNpsQ)
 
 [Article about the dataset which we wrote with co-authors and presented at the ACM RecSys CARS Workshop 2022](https://arxiv.org/abs/2209.00325)
 
