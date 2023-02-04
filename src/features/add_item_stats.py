@@ -3,6 +3,7 @@ import numpy as np
 import click
 import logging
 
+
 def add_item_watches_stats(interactions_df, item_stats):
     """
     Computes item watches stats for particular interactions date split
@@ -13,13 +14,13 @@ def add_item_watches_stats(interactions_df, item_stats):
         """Computes smoothed interactions statistics for item"""
         series = np.array(series)
         ext = np.r_[
-            2 * series[0] - series[window_size-1::-1],
+            2 * series[0] - series[window_size - 1 :: -1],
             series,
             2 * series[-1] - series[-1:-window_size:-1],
         ]
         weights = smoothing_func(window_size)
         smoothed = np.convolve(weights / weights.sum(), ext, mode="same")
-        return smoothed[window_size:-window_size+1]
+        return smoothed[window_size : -window_size + 1]
 
     def trend_slope(series, window_size=7, smoothing_func=np.hamming):
         """Computes trend slope for item interactions"""
@@ -174,9 +175,11 @@ def add_item_stats(
     items_output_path_for_submit: str,
 ) -> None:
     logging.basicConfig(level=logging.INFO)
-    logging.info("Adding user stats")
+    logging.info("Adding item stats")
     # read data
-    interactions_df = pd.read_csv(interactions_input_path, parse_dates=["last_watch_dt"])
+    interactions_df = pd.read_csv(
+        interactions_input_path, parse_dates=["last_watch_dt"]
+    )
     items_df = pd.read_csv(items_input_path)
     users_df = pd.read_csv(users_input_path)
 

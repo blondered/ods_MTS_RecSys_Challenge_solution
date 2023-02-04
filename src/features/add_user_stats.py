@@ -53,8 +53,10 @@ def add_and_save_user_stats(
 ) -> None:
     logging.basicConfig(level=logging.INFO)
     logging.info("Adding user stats")
-    
-    interactions_df = pd.read_csv(interactions_input_path, parse_dates=["last_watch_dt"])
+
+    interactions_df = pd.read_csv(
+        interactions_input_path, parse_dates=["last_watch_dt"]
+    )
     users_df = pd.read_csv(users_input_path)
 
     max_date = interactions_df["last_watch_dt"].max()
@@ -62,7 +64,7 @@ def add_and_save_user_stats(
     interactions_boost = interactions_df[
         interactions_df["last_watch_dt"] <= boosting_split_date
     ]
-    
+
     users_df = add_user_stats(interactions_boost, users_df, split_name="boost_")
     users_df = add_user_stats(interactions_df, users_df, split_name="")
     users_df.to_csv(users_output_path, index=True)

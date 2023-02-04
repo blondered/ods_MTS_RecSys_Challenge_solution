@@ -3,6 +3,7 @@ import click
 import numpy as np
 import pandas as pd
 from itertools import islice, cycle
+import logging
 
 
 
@@ -132,6 +133,8 @@ def prepare_submission(interactions_input_path: str, users_processed_input_path:
 implicit_scores_for_submit_input_path: str, sample_submission_input_path: str, model_input_path: str, submission_output_path: str
 ) -> None:
     # Reading data
+    logging.basicConfig(level=logging.INFO)
+    logging.info("Preparing recommendations")
     users_df = pd.read_csv(users_processed_input_path)
     items_df = pd.read_csv(items_processed_for_submit_input_path)
     interactions_df = pd.read_csv(
@@ -223,7 +226,7 @@ implicit_scores_for_submit_input_path: str, sample_submission_input_path: str, m
     # Changing recommendations format and saving submission
     all_recs["item_id"] = all_recs["item_id"].apply(to_string_func)
     all_recs.to_csv(submission_output_path, index=False)
-    # save_submission(all_recs, "submit")
+    logging.info("All done")
 
 if __name__ == "__main__":
     prepare_submission()

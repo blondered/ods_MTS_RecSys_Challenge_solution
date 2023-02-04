@@ -1,19 +1,38 @@
 import numpy as np
 import pandas as pd
 import logging
+import click
 
 
-def preprocess() -> None:
+@click.command()
+@click.argument("interactions_input_path", type=click.Path())
+@click.argument("items_input_path", type=click.Path())
+@click.argument("users_input_path", type=click.Path())
+@click.argument("interactions_output_path", type=click.Path())
+@click.argument("items_output_path", type=click.Path())
+@click.argument("users_output_path", type=click.Path())
+def preprocess(
+    interactions_input_path: str,
+    items_input_path: str,
+    users_input_path: str,
+    interactions_output_path: str,
+    items_output_path: str,
+    users_output_path: str,
+) -> None:
     logging.basicConfig(level=logging.INFO)
     logging.info("Preprocessing data")
 
     # Reading files
-    users_df = pd.read_csv("data/raw/users.csv")
-    items_df = pd.read_csv("data/raw/items.csv")
-    interactions_df = pd.read_csv("data/raw/interactions.csv", parse_dates=["last_watch_dt"])
+    users_df = pd.read_csv(users_input_path)
+    items_df = pd.read_csv(items_input_path)
+    interactions_df = pd.read_csv(
+        interactions_input_path, parse_dates=["last_watch_dt"]
+    )
 
     # Interactions preprocessing
-    interactions_df["watched_pct"] = interactions_df["watched_pct"].astype(pd.Int8Dtype()).fillna(0)
+    interactions_df["watched_pct"] = (
+        interactions_df["watched_pct"].astype(pd.Int8Dtype()).fillna(0)
+    )
     interactions_df["last_watch_dt"] = pd.to_datetime(interactions_df["last_watch_dt"])
 
     # Users info preprocessing
@@ -61,7 +80,9 @@ def preprocess() -> None:
     items_df["countries_list"] = items_df["countries"].apply(
         lambda x: x.split(", ") if ", " in x else [x]
     )
-    num_countries = pd.Series(np.hstack(items_df["countries_list"].values)).value_counts()
+    num_countries = pd.Series(
+        np.hstack(items_df["countries_list"].values)
+    ).value_counts()
     items_df["countries_max"] = items_df["countries_list"].apply(
         lambda x: max([num_countries[el] for el in x])
     )
@@ -74,12 +95,14 @@ def preprocess() -> None:
     items_df["studios_max"] = items_df["studios_list"].apply(
         lambda x: max([num_studios[el] for el in x])
     )
-    items_df.drop(["countries_list", "genres_list", "studios_list"], axis=1, inplace=True)
+    items_df.drop(
+        ["countries_list", "genres_list", "studios_list"], axis=1, inplace=True
+    )
 
     # Saving preprocessed files
-    users_df.to_csv("data/interim/users_clean.csv", index=False)
-    items_df.to_csv("data/interim/items_clean.csv", index=False)
-    interactions_df.to_csv("data/interim/interactions_clean.csv", index=False)
+    users_df.to_csv(users_output_path, index=False)
+    items_df.to_csv(items_output_path, index=False)
+    interactions_df.to_csv(interactions_output_path, index=False)
 
 
 if __name__ == "__main__":

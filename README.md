@@ -21,7 +21,7 @@ snakemake --cores all
 ```
 
 ## Solution description
-My solution included a two-stage model. I used item-item CF from implicit library to generate candidates with their scores and Catboost classifier to predict final ranks with classification objective. Recommendations for cold users were made with Popular items.
+My solution included a two-stage model. I used item-item CF from implicit library to generate candidates with their scores and Catboost classifier to predict final ranks with classification objective. Recommendations for cold users were made with Popular items. 
 
 Implicit model parameters were chosen on sliding time window cross validation. The best scores were achieved by Cosine recommender model, taking only last 20 interactions for each user. 100 candidates with their scores were generated for each user, filtering all items that user had interactions with.
 
