@@ -10,7 +10,7 @@ from scipy import sparse
 def generate_implicit_recs_mapper(
     model,
     train_matrix,
-    top_N,
+    top_n,
     user_mapping,
     item_inv_mapping,
     filter_already_liked_items,
@@ -33,7 +33,7 @@ def generate_implicit_recs_mapper(
         recs = model.recommend(
             user_id,
             train_matrix,
-            N=top_N,
+            N=top_n,
             filter_already_liked_items=filter_already_liked_items,
             filter_items=filtering,
         )
@@ -41,8 +41,7 @@ def generate_implicit_recs_mapper(
             return [item_inv_mapping[item] for item, _ in recs], [
                 score for _, score in recs
             ]
-        else:
-            return [item_inv_mapping[item] for item, _ in recs]
+        return [item_inv_mapping[item] for item, _ in recs]
 
     return _recs_mapper
 

@@ -2,6 +2,7 @@ import logging
 
 import click
 import pandas as pd
+from common import get_interactions_for_train
 
 
 def add_user_stats(interactions_df, users_df, split_name=""):
@@ -60,11 +61,8 @@ def add_and_save_user_stats(
     )
     users_df = pd.read_csv(users_input_path)
 
-    max_date = interactions_df["last_watch_dt"].max()
-    boosting_split_date = max_date - pd.Timedelta(days=14)
-    interactions_boost = interactions_df[
-        interactions_df["last_watch_dt"] <= boosting_split_date
-    ]
+    # prepare interactions df for boosting train period of time
+    interactions_boost = get_interactions_for_train(interactions_df)
 
     users_df = add_user_stats(interactions_boost, users_df, split_name="boost_")
     users_df = add_user_stats(interactions_df, users_df, split_name="")

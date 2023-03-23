@@ -7,6 +7,13 @@ import pandas as pd
 from catboost import CatBoostClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
+from train_config import (
+    CATBOOST_PARAMS,
+    ITEM_COL,
+    ITEM_STATS_COL,
+    NUM_NEGATIVES,
+    USER_COL,
+)
 
 
 @click.command()
@@ -48,7 +55,6 @@ def train_second_stage(
     pos["target"] = 1
 
     # Generating negative samples
-    num_negatives = 3
     pos_group = pos.groupby("user_id")["item_id"].count()
 
     neg = candidates[~candidates["id"].isin(pos["id"])].copy()
@@ -56,12 +62,13 @@ def train_second_stage(
         pos_group, on="user_id", rsuffix="p", how="right"
     )
     neg_sampling["num_choices"] = np.clip(
-        neg_sampling["item_id"] * num_negatives, a_min=0, a_max=25
+        neg_sampling["item_id"] * NUM_NEGATIVES, a_min=0, a_max=25
     )
-    func = lambda row: np.random.choice(
-        row["id"], size=row["num_choices"], replace=False
-    )
-    neg_sampling["sample_idx"] = neg_sampling.apply(func, axis=1)
+
+    def row_negative_sampling(row):
+        return np.random.choice(row["id"], size=row["num_choices"], replace=False)
+
+    neg_sampling["sample_idx"] = neg_sampling.apply(row_negative_sampling, axis=1)
     idx_chosen = neg_sampling["sample_idx"].explode().values
     neg = neg[neg["id"].isin(idx_chosen)]
     neg["target"] = 0
@@ -88,50 +95,16 @@ def train_second_stage(
             ]
         )[select_col]
     )
-    user_col = [
-        "user_id",
-        "age",
-        "income",
-        "sex",
-        "kids_flg",
-        "boost_user_watch_cnt_all",
-        "boost_user_watch_cnt_last_14",
-    ]
-    item_col = [
-        "item_id",
-        "content_type",
-        "countries_max",
-        "for_kids",
-        "age_rating",
-        "studios_max",
-        "genres_max",
-        "genres_min",
-        "genres_med",
-        "release_novelty",
-    ]
-    item_stats_col = [
-        "item_id",
-        "watched_in_7_days",
-        "watch_ts_std",
-        "trend_slope",
-        "watch_ts_quantile_95_diff",
-        "watch_ts_median_diff",
-        "watched_in_all_time",
-        "male_watchers_fraction",
-        "female_watchers_fraction",
-        "younger_35_fraction",
-        "older_35_fraction",
-    ]
     cat_col = ["age", "income", "sex", "content_type"]
     train_feat = boost_train.merge(
-        users_df[user_col], on=["user_id"], how="left"
-    ).merge(items_df[item_col], on=["item_id"], how="left")
-    eval_feat = boost_eval.merge(users_df[user_col], on=["user_id"], how="left").merge(
-        items_df[item_col], on=["item_id"], how="left"
+        users_df[USER_COL], on=["user_id"], how="left"
+    ).merge(items_df[ITEM_COL], on=["item_id"], how="left")
+    eval_feat = boost_eval.merge(users_df[USER_COL], on=["user_id"], how="left").merge(
+        items_df[ITEM_COL], on=["item_id"], how="left"
     )
 
     item_stats = pd.read_csv(items_processed_for_train_input_path)
-    item_stats = item_stats[item_stats_col]
+    item_stats = item_stats[ITEM_STATS_COL]
     train_feat = train_feat.join(
         item_stats.set_index("item_id"), on="item_id", how="left"
     )
@@ -140,41 +113,41 @@ def train_second_stage(
     )
     drop_col = ["user_id", "item_id"]
     target_col = ["target"]
-    X_train = train_feat.drop(drop_col + target_col, axis=1)
+    x_train = train_feat.drop(drop_col + target_col, axis=1)
     y_train = train_feat[target_col]
-    X_val = eval_feat.drop(drop_col + target_col, axis=1)
+    x_val = eval_feat.drop(drop_col + target_col, axis=1)
     y_val = eval_feat[target_col]
-    X_train.fillna("None", inplace=True)
-    X_val.fillna("None", inplace=True)
-    X_train[cat_col] = X_train[cat_col].astype("category")
-    X_val[cat_col] = X_val[cat_col].astype("category")
+    x_train.fillna("None", inplace=True)
+    x_val.fillna("None", inplace=True)
+    x_train[cat_col] = x_train[cat_col].astype("category")
+    x_val[cat_col] = x_val[cat_col].astype("category")
 
     # Training CatBoost classifier with parameters previously chosen on cross validation
-    params = {
-        "subsample": 0.97,
-        "max_depth": 9,
-        "n_estimators": 2000,
-        "learning_rate": 0.03,
-        "scale_pos_weight": num_negatives,
-        "l2_leaf_reg": 27,
-        "thread_count": -1,
-        "verbose": 200,
-        "task_type": "CPU",
-        # "task_type": "GPU",
-        # "devices": "0:1",
-        # "bootstrap_type": "Poisson",
-    }
-    boost_model = CatBoostClassifier(**params)
+    # params = {
+    #     "subsample": 0.97,
+    #     "max_depth": 9,
+    #     "n_estimators": 2000,
+    #     "learning_rate": 0.03,
+    #     "scale_pos_weight": NUM_NEGATIVES,
+    #     "l2_leaf_reg": 27,
+    #     "thread_count": -1,
+    #     "verbose": 200,
+    #     "task_type": "CPU",
+    #     # "task_type": "GPU",
+    #     # "devices": "0:1",
+    #     # "bootstrap_type": "Poisson",
+    # }
+    boost_model = CatBoostClassifier(**CATBOOST_PARAMS)
     boost_model.fit(
-        X_train,
+        x_train,
         y_train,
-        eval_set=(X_val, y_val),
+        eval_set=(x_val, y_val),
         early_stopping_rounds=200,
         cat_features=cat_col,
         plot=False,
     )
-    with open(model_output_path, "wb") as f:
-        pickle.dump(boost_model, f)
+    with open(model_output_path, "wb") as dump_file:
+        pickle.dump(boost_model, dump_file)
 
 
 if __name__ == "__main__":

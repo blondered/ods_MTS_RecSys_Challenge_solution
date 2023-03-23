@@ -3,6 +3,7 @@ import logging
 import click
 import numpy as np
 import pandas as pd
+from common import get_interactions_for_train
 
 
 def add_item_watches_stats(interactions_df, item_stats):
@@ -40,7 +41,10 @@ def add_item_watches_stats(interactions_df, item_stats):
         )
     item_stats.fillna(0, inplace=True)
     new_colnames = ["user_id" + str(i) for i in range(1, 7)] + ["user_id"]
-    trend_slope_to_row = lambda row: trend_slope(row[new_colnames], window_size=7)
+
+    def trend_slope_to_row(row):
+        return trend_slope(row[new_colnames], window_size=7)
+
     item_stats["trend_slope"] = item_stats.apply(trend_slope_to_row, axis=1)
     item_stats["watched_in_7_days"] = item_stats[new_colnames].apply(sum, axis=1)
     item_stats["watch_ts_quantile_95"] = 0
@@ -185,11 +189,7 @@ def add_item_stats(
     users_df = pd.read_csv(users_input_path)
 
     # prepare interactions df for boosting train period of time
-    max_date = interactions_df["last_watch_dt"].max()
-    boosting_split_date = max_date - pd.Timedelta(days=14)
-    interactions_boost = interactions_df[
-        interactions_df["last_watch_dt"] <= boosting_split_date
-    ]
+    interactions_boost = get_interactions_for_train(interactions_df)
 
     # compute stats and save data
     compute_stats_and_save(
