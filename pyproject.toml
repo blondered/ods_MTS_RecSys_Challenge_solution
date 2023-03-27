@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "ods_mts_recsys_challenge_solution"
+version = "0.1.0"
+description = ""
+authors = ["Daria Tikhonovich <dmtikhonov@mts.ru>"]
+
+[tool.poetry.dependencies]
+python = "3.8.13"
+numpy = "1.24.1"
+pandas = "1.5.2"
+scipy = "^1.10.1"
+catboost = "1.1.1"
+click = "8.1.3"
+implicit = "0.4.4"
+matplotlib = "3.6.3"
+scikit-learn = "1.2.1"
+snakemake = "7.20.0"
+fastapi = "^0.95.0"
+streamlit = "^1.20.0"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^6.0.0"
+mypy = "^1.1.1"
+isort = "^5.12.0"
+black = "^23.1.0"
+pylint = "^2.17.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
