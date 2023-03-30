@@ -58,9 +58,13 @@ rule train_second_stage:
         "data/interim/interactions_clean.csv",
         "data/processed/users_processed.csv",
         "data/processed/items_processed_for_train.csv",
-        "data/processed/implicit_scores_for_train.csv",        
+        "data/processed/implicit_scores_for_train.csv",   
     output:
         "models/catboost_trained_model.pkl",
+        "data/train/x_train.csv",
+        "data/train/y_train.csv",
+        "data/train/x_val.csv",
+        "data/train/y_val.csv",
     shell:
         "python src/models/train_second_stage.py {input} {output}"
 

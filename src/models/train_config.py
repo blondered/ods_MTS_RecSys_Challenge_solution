@@ -51,3 +51,5 @@ CATBOOST_PARAMS = {
     # "devices": "0:1",
     # "bootstrap_type": "Poisson",
 }
+
+RANDOM_STATE = 345

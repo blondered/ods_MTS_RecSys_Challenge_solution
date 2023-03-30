@@ -5,6 +5,7 @@ echo "Downloading data"
 mkdir -p "data/raw"
 mkdir -p "data/interim"
 mkdir -p "data/processed"
+mkdir -p "data/train"
 
 wget -q https://storage.yandexcloud.net/datasouls-ods/materials/f90231b6/items.csv -O "data/raw/items.csv"
 wget -q https://storage.yandexcloud.net/datasouls-ods/materials/6503d6ab/users.csv -O "data/raw/users.csv"

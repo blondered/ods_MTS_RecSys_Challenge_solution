@@ -13,6 +13,7 @@ from train_config import (
     ITEM_STATS_COL,
     NUM_NEGATIVES,
     USER_COL,
+    RANDOM_STATE,
 )
 
 
@@ -22,12 +23,20 @@ from train_config import (
 @click.argument("items_processed_for_train_input_path", type=click.Path())
 @click.argument("implicit_scores_for_train_input_path", type=click.Path())
 @click.argument("model_output_path", type=click.Path())
+@click.argument("x_train_output_path", type=click.Path())
+@click.argument("y_train_output_path", type=click.Path())
+@click.argument("x_val_output_path", type=click.Path())
+@click.argument("y_val_output_path", type=click.Path())
 def train_second_stage(
     interactions_input_path: str,
     users_processed_input_path: str,
     items_processed_for_train_input_path: str,
     implicit_scores_for_train_input_path: str,
     model_output_path: str,
+    x_train_output_path: str,
+    y_train_output_path: str,
+    x_val_output_path: str,
+    y_val_output_path: str,
 ) -> None:
     logging.basicConfig(level=logging.INFO)
     logging.info("Training second stage model")
@@ -65,8 +74,11 @@ def train_second_stage(
         neg_sampling["item_id"] * NUM_NEGATIVES, a_min=0, a_max=25
     )
 
+    np_random = np.random.RandomState(RANDOM_STATE)
+
+
     def row_negative_sampling(row):
-        return np.random.choice(row["id"], size=row["num_choices"], replace=False)
+        return np_random.choice(row["id"], size=row["num_choices"], replace=False)
 
     neg_sampling["sample_idx"] = neg_sampling.apply(row_negative_sampling, axis=1)
     idx_chosen = neg_sampling["sample_idx"].explode().values
@@ -76,7 +88,7 @@ def train_second_stage(
     # Creating training data sample and early stopping data sample
     boost_idx_train = np.intersect1d(boost_idx, pos["user_id"].unique())
     boost_train_users, boost_eval_users = train_test_split(
-        boost_idx_train, test_size=0.1, random_state=345
+        boost_idx_train, test_size=0.1, random_state=RANDOM_STATE
     )
     select_col = ["user_id", "item_id", "implicit_score", "target"]
     boost_train = shuffle(
@@ -85,7 +97,8 @@ def train_second_stage(
                 pos[pos["user_id"].isin(boost_train_users)],
                 neg[neg["user_id"].isin(boost_train_users)],
             ]
-        )[select_col]
+        )[select_col],
+        random_state=RANDOM_STATE
     )
     boost_eval = shuffle(
         pd.concat(
@@ -93,7 +106,8 @@ def train_second_stage(
                 pos[pos["user_id"].isin(boost_eval_users)],
                 neg[neg["user_id"].isin(boost_eval_users)],
             ]
-        )[select_col]
+        )[select_col],
+        random_state=RANDOM_STATE
     )
     cat_col = ["age", "income", "sex", "content_type"]
     train_feat = boost_train.merge(
@@ -122,21 +136,11 @@ def train_second_stage(
     x_train[cat_col] = x_train[cat_col].astype("category")
     x_val[cat_col] = x_val[cat_col].astype("category")
 
-    # Training CatBoost classifier with parameters previously chosen on cross validation
-    # params = {
-    #     "subsample": 0.97,
-    #     "max_depth": 9,
-    #     "n_estimators": 2000,
-    #     "learning_rate": 0.03,
-    #     "scale_pos_weight": NUM_NEGATIVES,
-    #     "l2_leaf_reg": 27,
-    #     "thread_count": -1,
-    #     "verbose": 200,
-    #     "task_type": "CPU",
-    #     # "task_type": "GPU",
-    #     # "devices": "0:1",
-    #     # "bootstrap_type": "Poisson",
-    # }
+    x_train.to_csv(x_train_output_path, index=False)
+    y_train.to_csv(y_train_output_path, index=False)
+    x_val.to_csv(x_val_output_path, index=False)
+    y_val.to_csv(y_val_output_path, index=False)
+
     boost_model = CatBoostClassifier(**CATBOOST_PARAMS)
     boost_model.fit(
         x_train,
