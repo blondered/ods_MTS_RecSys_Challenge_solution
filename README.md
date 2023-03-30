@@ -1,8 +1,8 @@
 # ods and MTS RecSys Course Competition 4th place solution
 
-[Link to competition at ods.ai](https://ods.ai/tracks/recsys-course2021/competitions/competition-recsys-21)
+[Link to the competition at ods.ai](https://ods.ai/tracks/recsys-course2021/competitions/competition-recsys-21)
 
-[Me describing the solution at MTS RecSys meetup](https://www.youtube.com/watch?v=rTjm0IJNpsQ)
+[Me describing the solution at the MTS RecSys meetup](https://www.youtube.com/watch?v=rTjm0IJNpsQ)
 
 [Article about the dataset which we wrote with co-authors and presented at the ACM RecSys CARS Workshop 2022](https://arxiv.org/abs/2209.00325)
 
@@ -21,7 +21,7 @@ snakemake --cores all
 ```
 
 ## Solution description
-My solution included a two-stage model. I used item-item CF from implicit library to generate candidates with their scores and Catboost classifier to predict final ranks with classification objective. Recommendations for cold users were made with Popular items.
+My solution included a two-stage model. I used item-item CF from implicit library to generate candidates with their scores and Catboost classifier to predict final ranks with classification objective. Recommendations for cold users were made with Popular items. 
 
 Implicit model parameters were chosen on sliding time window cross validation. The best scores were achieved by Cosine recommender model, taking only last 20 interactions for each user. 100 candidates with their scores were generated for each user, filtering all items that user had interactions with.
 

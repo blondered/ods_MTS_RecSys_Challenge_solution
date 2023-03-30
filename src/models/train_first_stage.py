@@ -1,9 +1,11 @@
+import logging
+
+import click
 import numpy as np
 import pandas as pd
-from scipy import sparse
-import click
-import logging
 from implicit import nearest_neighbours as NN
+from scipy import sparse
+
 
 def generate_implicit_recs_mapper(
     model,
@@ -45,7 +47,14 @@ def generate_implicit_recs_mapper(
     return _recs_mapper
 
 
-def get_implicit_candidates(full_train, overall_known_items_mapped, warm_idx, users_mapping, items_mapping, items_inv_mapping):
+def get_implicit_candidates(
+    full_train,
+    overall_known_items_mapped,
+    warm_idx,
+    users_mapping,
+    items_mapping,
+    items_inv_mapping,
+):
     """
     Calculates top candidates from implicit model with their scores.
     Implicit parameters were chosen on time range split cross-validation.
@@ -77,7 +86,10 @@ def get_implicit_candidates(full_train, overall_known_items_mapped, warm_idx, us
     train_mat = sparse.coo_matrix(
         (
             weights,
-            (train["user_id"].map(users_mapping.get), train["item_id"].map(items_mapping.get)),
+            (
+                train["user_id"].map(users_mapping.get),
+                train["item_id"].map(items_mapping.get),
+            ),
         )
     ).tocsr()
 
@@ -101,34 +113,41 @@ def get_implicit_candidates(full_train, overall_known_items_mapped, warm_idx, us
     recs.drop(["item_id_score"], axis=1, inplace=True)
     return recs
 
+
 @click.command()
 @click.argument("interactions_input_path", type=click.Path())
 @click.argument("submission_input_path", type=click.Path())
 @click.argument("scores_output_path_for_train", type=click.Path())
 @click.argument("scores_output_path_for_submit", type=click.Path())
-def train_first_stage(interactions_input_path: str, submission_input_path: str, scores_output_path_for_train: str, scores_output_path_for_submit: str) -> None:
+def train_first_stage(
+    interactions_input_path: str,
+    submission_input_path: str,
+    scores_output_path_for_train: str,
+    scores_output_path_for_submit: str,
+) -> None:
     logging.basicConfig(level=logging.INFO)
+    logging.info("Training first stage model")
     interactions_df = pd.read_csv(
         interactions_input_path, parse_dates=["last_watch_dt"]
     )
     submission = pd.read_csv(submission_input_path)
     interactions_df.sort_values(by="last_watch_dt", inplace=True)
 
-    logging.info("Creating mappings")
     # Creating items and users mapping
     users_inv_mapping = dict(enumerate(interactions_df["user_id"].unique()))
     users_mapping = {v: k for k, v in users_inv_mapping.items()}
     items_inv_mapping = dict(enumerate(interactions_df["item_id"].unique()))
     items_mapping = {v: k for k, v in items_inv_mapping.items()}
 
-    logging.info("Preparing data for submit")
     # Preparing data for implicit scores for submit
     overall_known_items = (
         interactions_df.groupby("user_id")["item_id"].apply(list).to_dict()
     )
     overall_known_items_mapped = {}
     for user, recommend in overall_known_items.items():
-        overall_known_items_mapped[user] = list(map(lambda x: items_mapping[x], recommend))
+        overall_known_items_mapped[user] = list(
+            map(lambda x: items_mapping[x], recommend)
+        )
     interactions_df["order_from_recent"] = (
         interactions_df.sort_values(by=["last_watch_dt"], ascending=False)
         .groupby("user_id")
@@ -139,7 +158,6 @@ def train_first_stage(interactions_input_path: str, submission_input_path: str, 
         interactions_df["user_id"].unique(), submission["user_id"].unique()
     )
 
-    logging.info("Preparing data for train")
     # Preparing data for implicit scores for boosting training
     last_date_df = interactions_df["last_watch_dt"].max()
     boosting_split_date = last_date_df - pd.Timedelta(days=14)
@@ -167,19 +185,27 @@ def train_first_stage(interactions_input_path: str, submission_input_path: str, 
         before_boosting["user_id"].unique(), boosting_data["user_id"].unique()
     )
 
-    logging.info("Getting candidates for submit")
     # Getting implicit scores and saving to csv
     impl_recs_for_submit = get_implicit_candidates(
-        interactions_df, overall_known_items_mapped, warm_idx, users_mapping, items_mapping, items_inv_mapping
+        interactions_df,
+        overall_known_items_mapped,
+        warm_idx,
+        users_mapping,
+        items_mapping,
+        items_inv_mapping,
     )
     impl_recs_for_submit.to_csv(scores_output_path_for_submit, index=False)
 
-    logging.info("Getting candidates for train")    
     impl_recs_for_boost_train = get_implicit_candidates(
-        before_boosting, before_boosting_known_items_mapped, boost_warm_idx, users_mapping, items_mapping, items_inv_mapping
+        before_boosting,
+        before_boosting_known_items_mapped,
+        boost_warm_idx,
+        users_mapping,
+        items_mapping,
+        items_inv_mapping,
     )
     impl_recs_for_boost_train.to_csv(scores_output_path_for_train, index=False)
 
-    logging.info("All done") 
+
 if __name__ == "__main__":
     train_first_stage()

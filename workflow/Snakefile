@@ -21,7 +21,7 @@ rule preprocess:
         "data/interim/items_clean.csv",
         "data/interim/users_clean.csv"
     shell:
-        "python src/data/preprocess.py"
+        "python src/data/preprocess.py {input} {output}"
 
 rule add_item_stats:
     input:
@@ -32,7 +32,7 @@ rule add_item_stats:
         "data/processed/items_processed_for_train.csv",
         "data/processed/items_processed_for_submit.csv"
     shell:
-        "python src/features/add_item_stats.py {input[0]} {input[1]} {input[2]} {output[0]} {output[1]}"                     
+        "python src/features/add_item_stats.py {input} {output}"                     
 
 rule add_user_stats:
     input:
@@ -41,7 +41,7 @@ rule add_user_stats:
     output:
         "data/processed/users_processed.csv",
     shell:
-        "python src/features/add_user_stats.py {input[0]} {input[1]} {output[0]}"
+        "python src/features/add_user_stats.py {input} {output}"
 
 rule train_first_stage:
     input:
@@ -51,7 +51,7 @@ rule train_first_stage:
         "data/processed/implicit_scores_for_train.csv",
         "data/processed/implicit_scores_for_submit.csv",
     shell:
-        "python src/models/train_first_stage.py {input[0]} {input[1]} {output[0]} {output[1]}" 
+        "python src/models/train_first_stage.py {input} {output}" 
 
 rule train_second_stage:
     input:
@@ -62,7 +62,7 @@ rule train_second_stage:
     output:
         "models/catboost_trained_model.pkl",
     shell:
-        "python src/models/train_second_stage.py {input[0]} {input[1]} {input[2]} {input[3]} {output[0]}"
+        "python src/models/train_second_stage.py {input} {output}"
 
 
 rule prepare_submission:
@@ -76,4 +76,4 @@ rule prepare_submission:
     output:
         "models/submission.csv"
     shell:
-        "python src/models/prepare_submission.py {input[0]} {input[1]} {input[2]} {input[3]} {input[4]} {input[5]} {output[0]}"
+        "python src/models/prepare_submission.py {input} {output}"

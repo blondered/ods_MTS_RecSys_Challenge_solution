@@ -1,7 +1,7 @@
-import pickle
-import click
 import logging
+import pickle
 
+import click
 import numpy as np
 import pandas as pd
 from catboost import CatBoostClassifier
@@ -16,11 +16,14 @@ from sklearn.utils import shuffle
 @click.argument("implicit_scores_for_train_input_path", type=click.Path())
 @click.argument("model_output_path", type=click.Path())
 def train_second_stage(
-    interactions_input_path: str, users_processed_input_path: str, items_processed_for_train_input_path: str,
-    implicit_scores_for_train_input_path: str, model_output_path: str
+    interactions_input_path: str,
+    users_processed_input_path: str,
+    items_processed_for_train_input_path: str,
+    implicit_scores_for_train_input_path: str,
+    model_output_path: str,
 ) -> None:
     logging.basicConfig(level=logging.INFO)
-    logging.info("Start training second stage")
+    logging.info("Training second stage model")
     # reading data
     users_df = pd.read_csv(users_processed_input_path)
     items_df = pd.read_csv(items_processed_for_train_input_path)
@@ -37,7 +40,6 @@ def train_second_stage(
     ].copy()
     boost_idx = boosting_data["user_id"].unique()
 
-    logging.info("Preparing positive samples")
     # taking candidates from implicit model and generating positive samples
     candidates["id"] = candidates.index
     pos = candidates.merge(
@@ -45,7 +47,6 @@ def train_second_stage(
     )
     pos["target"] = 1
 
-    logging.info("Preparing negative samples")
     # Generating negative samples
     num_negatives = 3
     pos_group = pos.groupby("user_id")["item_id"].count()
@@ -57,13 +58,14 @@ def train_second_stage(
     neg_sampling["num_choices"] = np.clip(
         neg_sampling["item_id"] * num_negatives, a_min=0, a_max=25
     )
-    func = lambda row: np.random.choice(row["id"], size=row["num_choices"], replace=False)
+    func = lambda row: np.random.choice(
+        row["id"], size=row["num_choices"], replace=False
+    )
     neg_sampling["sample_idx"] = neg_sampling.apply(func, axis=1)
     idx_chosen = neg_sampling["sample_idx"].explode().values
     neg = neg[neg["id"].isin(idx_chosen)]
     neg["target"] = 0
 
-    logging.info("Creating train and eval data")
     # Creating training data sample and early stopping data sample
     boost_idx_train = np.intersect1d(boost_idx, pos["user_id"].unique())
     boost_train_users, boost_eval_users = train_test_split(
@@ -121,18 +123,21 @@ def train_second_stage(
         "older_35_fraction",
     ]
     cat_col = ["age", "income", "sex", "content_type"]
-    train_feat = boost_train.merge(users_df[user_col], on=["user_id"], how="left").merge(
-        items_df[item_col], on=["item_id"], how="left"
-    )
+    train_feat = boost_train.merge(
+        users_df[user_col], on=["user_id"], how="left"
+    ).merge(items_df[item_col], on=["item_id"], how="left")
     eval_feat = boost_eval.merge(users_df[user_col], on=["user_id"], how="left").merge(
         items_df[item_col], on=["item_id"], how="left"
     )
 
-    logging.info("Collecting item stats")
     item_stats = pd.read_csv(items_processed_for_train_input_path)
     item_stats = item_stats[item_stats_col]
-    train_feat = train_feat.join(item_stats.set_index("item_id"), on="item_id", how="left")
-    eval_feat = eval_feat.join(item_stats.set_index("item_id"), on="item_id", how="left")
+    train_feat = train_feat.join(
+        item_stats.set_index("item_id"), on="item_id", how="left"
+    )
+    eval_feat = eval_feat.join(
+        item_stats.set_index("item_id"), on="item_id", how="left"
+    )
     drop_col = ["user_id", "item_id"]
     target_col = ["target"]
     X_train = train_feat.drop(drop_col + target_col, axis=1)
@@ -144,7 +149,6 @@ def train_second_stage(
     X_train[cat_col] = X_train[cat_col].astype("category")
     X_val[cat_col] = X_val[cat_col].astype("category")
 
-    logging.info("Fitting catboost model")
     # Training CatBoost classifier with parameters previously chosen on cross validation
     params = {
         "subsample": 0.97,
@@ -169,7 +173,6 @@ def train_second_stage(
         cat_features=cat_col,
         plot=False,
     )
-    logging.info("Saving catboost model")
     with open(model_output_path, "wb") as f:
         pickle.dump(boost_model, f)
 

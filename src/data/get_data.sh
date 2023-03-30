@@ -1,5 +1,7 @@
 #! /bin/bash
 
+echo "Downloading data"
+
 mkdir -p "data/raw"
 mkdir -p "data/interim"
 mkdir -p "data/processed"
